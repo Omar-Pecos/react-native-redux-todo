@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { FETCH_TODOS_SUCCESS,FETCH_TODOS_FAIL } from '../utils/actionTypes';
+import { FETCH_TODOS_SUCCESS,FETCH_TODOS_FAIL, MARK_AS_FAVORITE_SUCCESS, MARK_AS_DONE_SUCCESS } from '../utils/actionTypes';
 import { apiUrl } from '../utils/constants';
 
 //sync job
@@ -12,6 +12,16 @@ const fetchToDosFail = data => ({
     payload : data
 })
 
+const markAsFavSuccess = data =>({
+    type : MARK_AS_FAVORITE_SUCCESS,
+    payload : data
+})
+
+const markAsDoneSuccess = data =>({
+    type : MARK_AS_DONE_SUCCESS,
+    payload : data
+})
+
 //async call to API with thunk
 export const fetchToDos = () =>{
     return async dispatch =>{
@@ -20,9 +30,33 @@ export const fetchToDos = () =>{
             if (res.data.status == 'fail'){
                 dispatch(fetchToDosFail(res.data.error));
             }
-            dispatch(fetchToDosSuccess(res.data.todos));
+            var todos = appendProperties(res.data.todos);
+            dispatch(fetchToDosSuccess( todos ));
         } catch (error) {
             console.log(error);
         }
     }
+}
+
+export const markAs = (type,value,index) =>{
+    return (dispatch) =>{
+        const data = [type,value,index];
+        if (type == 'favorite')
+            dispatch( markAsFavSuccess(data));
+        else{
+            dispatch( markAsDoneSuccess(data));
+        }
+           
+    }
+    
+}
+
+
+// auxiliary function to append favorite,done to todos objects
+function appendProperties(dataArray){
+    return dataArray.map(el =>{
+        el.favorite = false;
+        el.done = false;
+        return el;
+    });
 }

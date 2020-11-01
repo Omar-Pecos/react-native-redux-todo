@@ -1,6 +1,8 @@
 import React from 'react';
-import {View,Text,ScrollView} from 'react-native';
+import {View,Text,ScrollView,StyleSheet} from 'react-native';
 import {connect} from 'react-redux';
+import Spinner from 'react-native-loading-spinner-overlay';
+import  ToDo  from './ToDo';
 
 const mapStateToProps = (state) =>{
     return{
@@ -10,21 +12,28 @@ const mapStateToProps = (state) =>{
 }
 
 const ConnectedToDoList = ({todos,status}) =>{
+
+  const {contentContainer,title} = styles;
     
   function renderList(){
        if (status == 'loading'){
            return(
-                <Text>Loading data ...</Text>
+            <Spinner
+                visible={true}
+                textContent={'Loading...'}
+                textStyle={{color : '#FFF'}}
+          />
            )
        }else{
            return (
-                <ScrollView>
+                <ScrollView contentContainerStyle={contentContainer}>
                     {
-                        todos.map(todo =>(
-                            <View key={todo._id}>
-                                <Text>{todo.title}</Text>
-                                <Text>{todo.text}</Text>
-                            </View>
+                        todos.map( (todo, i) =>(
+                            <ToDo
+                                key={todo._id}
+                                todo={todo}
+                                index={i}
+                            />
                         ))
                     }
                 </ScrollView>
@@ -34,11 +43,21 @@ const ConnectedToDoList = ({todos,status}) =>{
 
    return(
        <View>
-            <Text>ToDo List</Text>
+            <Text style={title}>ToDo List</Text>
             {renderList()}
        </View>
    )
 }
+
+const styles = StyleSheet.create({
+    contentContainer : {
+        paddingVertical : 20
+    },
+    title:{
+        textAlign : "center",
+        fontSize : 30
+    }
+})
 
 const ToDoList = connect(mapStateToProps)(ConnectedToDoList);
 
