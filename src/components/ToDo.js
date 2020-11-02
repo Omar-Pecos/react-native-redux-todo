@@ -1,6 +1,7 @@
 import React from 'react';
 import {Text,View,Image, StyleSheet, TouchableOpacity} from 'react-native';
-import store from './../redux/store';
+import {useDispatch } from 'react-redux'
+
 import {markAs} from './../redux/actions';
 
 const styles = StyleSheet.create({
@@ -35,8 +36,8 @@ const styles = StyleSheet.create({
         flexDirection : "row"
     },
     imageBig:{
-        width : 50,
-        height : 50,
+        width : 65,
+        height : 65,
         margin : 7,
         marginLeft : -10
     },
@@ -48,17 +49,17 @@ const styles = StyleSheet.create({
 
 const {container,containerFav,title,titleDone,imageBig,imageSmall,flex} = styles;
 
-const markAsType = (type,value,index) =>{
-       store.dispatch(markAs(type,value,index));
-}
 
 const ToDo = ({todo,index}) =>{
+
+    const dispatch = useDispatch()
+
     return(
         <View style={todo.favorite == false ? container : containerFav}>
             <Text style={todo.done == true ? titleDone : title}>{todo.title}</Text>
             <View style={flex}>
                 <Image style={imageBig} source={{uri : `https://robohash.org/${todo.title}`}} />
-                <Text>
+                <Text style={{paddingRight : 55}}>
                     {todo.text}
                 </Text>
             </View>
@@ -66,11 +67,11 @@ const ToDo = ({todo,index}) =>{
             <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
                 {
                   todo.favorite === false ?
-                    <TouchableOpacity onPress={() => markAsType('favorite',true,index)} >
+                    <TouchableOpacity onPress={() => dispatch(markAs('favorite',true,index))} >
                         <Image  style={imageSmall} source={{uri : "https://icon-icons.com/icons2/38/PNG/48/star_favorite_5754.png"}} />
                     </TouchableOpacity>
                         :
-                    <TouchableOpacity onPress={() => markAsType('favorite',false,index)} >
+                    <TouchableOpacity onPress={() => dispatch(markAs('favorite',false,index))} >
                         <Image  style={imageSmall} source={{uri : "https://icon-icons.com/icons2/39/PNG/48/favoritesilver_star_favorite_6338.png"}} />
                     </TouchableOpacity>     
                 }
@@ -78,11 +79,11 @@ const ToDo = ({todo,index}) =>{
                     <Text>&nbsp; &nbsp;</Text>
                 {
                     todo.done === false ?
-                    <TouchableOpacity onPress={() => markAsType('done',true,index)}>
+                    <TouchableOpacity onPress={() => dispatch(markAs('done',true,index))}>
                         <Image style={imageSmall} source={{uri : "https://icon-icons.com/icons2/1380/PNG/48/vcsnormal_93488.png"}} />       
                     </TouchableOpacity>
                         :
-                    <TouchableOpacity onPress={() => markAsType('done',false,index)}>
+                    <TouchableOpacity onPress={() => dispatch(markAs('done',false,index))}>
                         <Image style={imageSmall} source={{uri : "https://icon-icons.com/icons2/1380/PNG/48/vcsconflicting_93497.png"}} />       
                     </TouchableOpacity>   
                 }

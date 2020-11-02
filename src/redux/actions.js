@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { FETCH_TODOS_SUCCESS,FETCH_TODOS_FAIL, MARK_AS_FAVORITE_SUCCESS, MARK_AS_DONE_SUCCESS } from '../utils/actionTypes';
+import { FETCH_TODOS_SUCCESS,FETCH_TODOS_FAIL, MARK_AS_FAVORITE_SUCCESS, MARK_AS_DONE_SUCCESS, ADD_TODO_SUCCESS,ADD_TODO_FAIL } from '../utils/actionTypes';
 import { apiUrl } from '../utils/constants';
 
 //sync job
@@ -7,9 +7,9 @@ const fetchToDosSuccess = todos => ({
     type : FETCH_TODOS_SUCCESS,
     payload : todos
 })
-const fetchToDosFail = data => ({
+const fetchToDosFail = error => ({
     type : FETCH_TODOS_FAIL,
-    payload : data
+    payload : error
 })
 
 const markAsFavSuccess = data =>({
@@ -20,6 +20,16 @@ const markAsFavSuccess = data =>({
 const markAsDoneSuccess = data =>({
     type : MARK_AS_DONE_SUCCESS,
     payload : data
+})
+
+const addToDoSuccess = todo =>({
+    type : ADD_TODO_SUCCESS,
+    payload : todo
+})
+
+const addToDoFail = error =>({
+    type : ADD_TODO_FAIL,
+    payload : error
 })
 
 //async call to API with thunk
@@ -33,7 +43,7 @@ export const fetchToDos = () =>{
             var todos = appendProperties(res.data.todos);
             dispatch(fetchToDosSuccess( todos ));
         } catch (error) {
-            console.log(error);
+            console.log(error.message);
         }
     }
 }
@@ -49,6 +59,18 @@ export const markAs = (type,value,index) =>{
            
     }
     
+}
+
+export const addToDo = (body) =>{
+    return async dispatch =>{
+        try {
+            const response = await axios.post(`${apiUrl}todo`, body);
+                console.log(response);
+            dispatch(addToDoSuccess(response.data.todo));
+        } catch (error) {
+            dispatch(addToDoFail(error.message));
+        }
+    }
 }
 
 

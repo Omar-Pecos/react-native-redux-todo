@@ -1,4 +1,4 @@
-const { FETCH_TODOS_SUCCESS, FETCH_TODOS_FAIL, MARK_AS_FAVORITE_SUCCESS, MARK_AS_DONE_SUCCESS } = require("../utils/actionTypes")
+const { FETCH_TODOS_SUCCESS, FETCH_TODOS_FAIL, MARK_AS_FAVORITE_SUCCESS, MARK_AS_DONE_SUCCESS, ADD_TODO_SUCCESS, ADD_TODO_FAIL } = require("../utils/actionTypes")
 
 const initialState = {
     todos : [],
@@ -49,6 +49,25 @@ const todos = (state = initialState,action) =>{
                 ...state,
                 todos : newTodos
             }
+        case ADD_TODO_SUCCESS:
+            var todo = action.payload;
+            todo.favorite = false;
+            todo.done = false;
+
+            return{
+                ...state,
+                todos : [ todo, ...state.todos],
+                status : 'success',
+                hasError : false,
+                error : null
+            }
+            case ADD_TODO_FAIL:
+                return{
+                    ...state,
+                    status : 'error',
+                    hasError : true,
+                    error : action.payload
+                }
         default :
             return state;
     }
