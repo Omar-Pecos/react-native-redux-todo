@@ -4,6 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack'
 
 import ToDoList from './../components/ToDoList';
 import AddScreen from './../components/AddScreen';
+import DeleteScreen from '../components/DeleteScreen';
 
 const Stack = createStackNavigator()
 
@@ -34,6 +35,7 @@ function MainStackNavigator() {
         }}>
         <Stack.Screen name='List' component={ToDoList} />
         <Stack.Screen name='AddModal' component={AddScreen} />
+        <Stack.Screen name='DeleteModal' component={DeleteScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   )

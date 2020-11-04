@@ -1,17 +1,13 @@
-import React,{useState} from 'react'
-import { StyleSheet, Text, View, TouchableOpacity, TextInput } from 'react-native'
+import React from 'react'
+import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native'
 import { useDispatch } from 'react-redux'
-import {addToDo} from '../redux/actions'
-
 import { Ionicons } from '@expo/vector-icons'
+import { deleteToDo } from '../redux/actions'
 
-
-function AddScreen({ navigation }) {
-
+const DeleteScreen = ({route,navigation}) =>{
+    //get param
+    const {todo} = route.params;
     const dispatch = useDispatch();
-    
-    const [title,setTitle] = useState('')
-    const [text,setText] = useState('')
 
     return (
         <View style={styles.container}>
@@ -26,52 +22,21 @@ function AddScreen({ navigation }) {
                 <View style={styles.modalContainer}>
 
                     <Text style={{ color: '#444', fontSize: 20 }}>
-                        Add
+                        Are you sure?
                     </Text>
-
-                    <TextInput
-                        style={{
-                            height: 50,
-                            width: 200,
-                            padding: 5,
-                            borderColor: 'gray',
-                            borderBottomWidth: 1
-                        }}
-                        numberOfLines={1}
-                        onChangeText={title => setTitle(title)}
-                        value={title}
-                        placeholder='Enter Title'
-                        clearButtonMode='while-editing'
-                    />
-                    <TextInput
-                        style={{
-                            height: 50,
-                            width: 200,
-                            padding: 5,
-                            borderColor: 'gray',
-                            borderBottomWidth: 1
-                        }}
-                        numberOfLines={3}
-                        multiline={true}
-                        onChangeText={text => setText(text)}
-                        value={text}
-                        placeholder='Enter Text'
-                        clearButtonMode='while-editing'
-                    />
+                    <Text style={{marginTop:15, padding: 10, fontSize: 16 }}>If you delete "{todo.title}" you will not be able to recover it</Text>
                     <TouchableOpacity
                         style={{
                             marginTop: 10,
-                            backgroundColor: 'blue',
                             width: 50,
                             height: 50,
                             alignItems: 'center',
                             justifyContent: 'center',
                             borderRadius: 5
                         }}
-                        onPress={() => addToDoFunc(dispatch,navigation,{title,text})}
-                        disabled={!title || !text}
+                        onPress={() => deleteToDoFunc(dispatch,navigation,todo._id)}
                         >
-                        <Ionicons name='ios-arrow-dropright-circle' size={40} color='#fff' />
+                       <Image style={{width:30,height:30}} source={{ uri: "https://icon-icons.com/icons2/1808/PNG/48/trash-can_115312.png" }} />
                     </TouchableOpacity>
                 </View>
 
@@ -79,8 +44,9 @@ function AddScreen({ navigation }) {
         </View>
     )
 }
-const addToDoFunc = (dispatch,navigation,body) =>{
-    dispatch(addToDo(body));
+
+const deleteToDoFunc = (dispatch,navigation,ID) =>{
+    dispatch(deleteToDo(ID));
     navigation.navigate('List');
 }
 const styles = StyleSheet.create({
@@ -92,7 +58,7 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 10,
         justifyContent: 'flex-end',
         flexDirection: 'row',
-        height: '60%',
+        height: '40%',
         width: '100%',
         position: 'absolute',
         bottom: 0,
@@ -124,4 +90,6 @@ const styles = StyleSheet.create({
         left: 50
     }
 })
-export default AddScreen
+
+
+export default DeleteScreen

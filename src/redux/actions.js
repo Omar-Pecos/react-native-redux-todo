@@ -1,8 +1,11 @@
 import axios from 'axios';
-import { FETCH_TODOS_SUCCESS,FETCH_TODOS_FAIL, MARK_AS_FAVORITE_SUCCESS, MARK_AS_DONE_SUCCESS, ADD_TODO_SUCCESS,ADD_TODO_FAIL } from '../utils/actionTypes';
+import { FETCH_TODOS,FETCH_TODOS_SUCCESS,FETCH_TODOS_FAIL, MARK_AS_FAVORITE_SUCCESS, MARK_AS_DONE_SUCCESS, ADD_TODO_SUCCESS,ADD_TODO_FAIL, SET_ERROR, ADD_TODO, DELETE_TODO, DELETE_TODO_SUCCESS, DELETE_TODO_FAIL } from '../utils/actionTypes';
 import { apiUrl } from '../utils/constants';
 
 //sync job
+const fetchToDos = () => ({
+    type : FETCH_TODOS,
+})
 const fetchToDosSuccess = todos => ({
     type : FETCH_TODOS_SUCCESS,
     payload : todos
@@ -22,6 +25,9 @@ const markAsDoneSuccess = data =>({
     payload : data
 })
 
+const addToDoAction = () =>({
+    type : ADD_TODO
+})
 const addToDoSuccess = todo =>({
     type : ADD_TODO_SUCCESS,
     payload : todo
@@ -32,10 +38,29 @@ const addToDoFail = error =>({
     payload : error
 })
 
+const deleteToDoAction = () =>({
+    type : DELETE_TODO
+})
+
+const deleteToDoSuccess = todo =>({
+    type : DELETE_TODO_SUCCESS,
+    payload : todo
+})
+
+const deleteToDoFail = error =>({
+    type : DELETE_TODO_FAIL,
+    payload : error
+})
+
+export const setError = () =>({
+    type : SET_ERROR
+})
+
 //async call to API with thunk
-export const fetchToDos = () =>{
+export const getToDos = () =>{
     return async dispatch =>{
         try {
+            dispatch(fetchToDos())
             const res = await axios.get(`${apiUrl}todo`);
             if (res.data.status == 'fail'){
                 dispatch(fetchToDosFail(res.data.error));
@@ -43,7 +68,7 @@ export const fetchToDos = () =>{
             var todos = appendProperties(res.data.todos);
             dispatch(fetchToDosSuccess( todos ));
         } catch (error) {
-            console.log(error.message);
+            dispatch(fetchToDosFail(error.message));
         }
     }
 }
@@ -64,9 +89,22 @@ export const markAs = (type,value,index) =>{
 export const addToDo = (body) =>{
     return async dispatch =>{
         try {
+            dispatch(addToDoAction());
             const response = await axios.post(`${apiUrl}todo`, body);
-                console.log(response);
+                //console.log(response);
             dispatch(addToDoSuccess(response.data.todo));
+        } catch (error) {
+            dispatch(addToDoFail(error.message));
+        }
+    }
+}
+
+export const deleteToDo = ID =>{
+    return async dispatch =>{
+        try {
+            dispatch(deleteToDoAction());
+            const res = await axios.delete(`${apiUrl}todo/${ID}`);
+            dispatch(deleteToDoSuccess(res.data.todo));
         } catch (error) {
             dispatch(addToDoFail(error.message));
         }

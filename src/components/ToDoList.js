@@ -1,20 +1,60 @@
 import React from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-import { connect } from 'react-redux';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Button } from 'react-native';
+import { useSelector,useDispatch } from 'react-redux';
 import Spinner from 'react-native-loading-spinner-overlay';
 import ToDo from './ToDo';
+import NotificationComponent from './NotificationComponent';
 import { Ionicons } from '@expo/vector-icons'
 
-const mapStateToProps = (state) => {
+import { Notification } from "react-native-in-app-message";
+import { setError } from '../redux/actions';
+
+/*const mapStateToProps = (state) => {
     return {
         todos: state.todos,
-        status: state.status
+        status: state.status,
+        hasError : state.hasError,
+        error : state.error
     }
+}*/
+
+var shouldShowMessage = (error,dispatch) =>{
+   if(error != null){
+       Notification.show();
+        // needs to dispacth and action
+        setTimeout(() => dispatch(setError()) ,5000);
+       // setTimeout(() => error = null,5000);
+   }
 }
 
-const ConnectedToDoList = ({ todos, status,navigation }) => {
+var setMessageType = (error,hasError) =>{
+    var notif,notifComponent;
+    if (error != null && hasError){
+        notifComponent = <NotificationComponent 
+            message={error}
+            type={'error'}
+        />
+        notif = <Notification customComponent={notifComponent} style={{paddingTop: 22}} duration={5000} />
+    }else{
+            notifComponent = <NotificationComponent 
+            message={error}
+            type={'success'}
+        />
+        //not an error msg
+        notif = <Notification customComponent={notifComponent} style={{paddingTop: 22}} duration={5000}/>
+    }
 
-    const {container, contentContainer, title, fabButton,fabContainer } = styles;
+    return notif;
+}
+
+export default ToDoList = ({ navigation }) => {
+    const todos = useSelector(state => state.todos);
+    const status = useSelector(state => state.status);
+    const hasError = useSelector(state => state.hasError);
+    const error = useSelector(state => state.error);
+
+    //console.log(message);
+    const dispatch = useDispatch();
 
     function renderList() {
         if (status == 'loading') {
@@ -32,6 +72,7 @@ const ConnectedToDoList = ({ todos, status,navigation }) => {
                         todos.map((todo, i) => (
                             <ToDo
                                 key={todo._id}
+                                navigation={navigation}
                                 todo={todo}
                                 index={i}
                             />
@@ -43,24 +84,30 @@ const ConnectedToDoList = ({ todos, status,navigation }) => {
     }
 
     return (
-        <View style={container}>
-            <Text style={title}>ToDo List</Text>
-            {renderList()}
-            <View style={styles.fabContainer}>
-                <TouchableOpacity
-                    onPress={() => navigation.navigate('AddModal')}
-                    style={styles.fabButton}>
-                    <Ionicons name='ios-add' color='#fff' size={70} />
-                </TouchableOpacity>
+        <React.Fragment>
+             { setMessageType(error,hasError)}
+            {
+               shouldShowMessage(error,dispatch)
+            }
+            <View style={container} >
+                <Text style={title}>ToDo List</Text>
+                {renderList()}
+                <View style={styles.fabContainer}>
+                    <TouchableOpacity
+                        onPress={() => navigation.navigate('AddModal')}
+                        style={styles.fabButton}>
+                        <Ionicons name='ios-add' color='#fff' size={70} />
+                    </TouchableOpacity>
+                </View>
             </View>
-        </View>
+        </React.Fragment>
     )
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor : '#fffcf5'
+        backgroundColor: '#fffcf5'
     },
     contentContainer: {
         margin: 5,
@@ -72,22 +119,26 @@ const styles = StyleSheet.create({
         position: 'absolute',
         right: 10,
         bottom: 20
-      },
-      fabButton: {
+    },
+    fabButton: {
         backgroundColor: 'blue',
         borderRadius: 35,
         width: 70,
         height: 70,
         alignItems: 'center',
         justifyContent: 'center'
-      },
-      title:{
-          textAlign: "center",
-          fontWeight:'bold',
-          fontSize: 22
-      }
+    },
+    title: {
+        paddingTop: 10,
+        margin: 7,
+        textAlign: "center",
+        fontWeight: 'bold',
+        fontSize: 20
+    }
 })
 
-const ToDoList = connect(mapStateToProps)(ConnectedToDoList);
+const { container, contentContainer, title, fabButton, fabContainer } = styles;
 
-export default ToDoList;
+//const ToDoList = connect(mapStateToProps)(ConnectedToDoList);
+
+//export default ToDoList;
