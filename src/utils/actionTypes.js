@@ -10,8 +10,13 @@ export const ADD_TODO_SUCCESS = "ADD_TODO_SUCCESS";
 export const ADD_TODO_FAIL = "ADD_TODO_FAIL";
 
 export const SET_ERROR = "SET_ERROR";
+export const SET_RELOAD_TIME = "SET_RELOAD_TIME";
 
 export const DELETE_TODO = "DELETE_TODO";
 export const DELETE_TODO_SUCCESS = "DELETE_TODO_SUCCESS";
 export const DELETE_TODO_FAIL = "DELETE_TODO_FAIL";
+
+export const EDIT_TODO = "EDIT_TODO";
+export const EDIT_TODO_SUCCESS = "EDIT_TODO_SUCCESS";
+export const EDIT_TODO_FAIL = "EDIT_TODO_FAIL";
 

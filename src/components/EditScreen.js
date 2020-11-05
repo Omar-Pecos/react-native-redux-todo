@@ -1,17 +1,18 @@
 import React,{useState} from 'react'
 import { StyleSheet, Text, View, TouchableOpacity, TextInput } from 'react-native'
 import { useDispatch } from 'react-redux'
-import {addToDo} from '../redux/actions'
 
 import { Ionicons } from '@expo/vector-icons'
+import { editToDo } from '../redux/actions';
 
 
-function AddScreen({ navigation }) {
+function EditScreen({ route, navigation }) {
 
+    const {todo} = route.params;
     const dispatch = useDispatch();
     
-    const [title,setTitle] = useState('')
-    const [text,setText] = useState('')
+    const [title,setTitle] = useState(todo.title)
+    const [text,setText] = useState(todo.text)
 
     return (
         <View style={styles.container}>
@@ -26,7 +27,7 @@ function AddScreen({ navigation }) {
                 <View style={styles.modalContainer}>
 
                     <Text style={{ color: '#444', fontSize: 20 }}>
-                        Add
+                        Edit
                     </Text>
 
                     <TextInput
@@ -40,7 +41,6 @@ function AddScreen({ navigation }) {
                         numberOfLines={1}
                         onChangeText={title => setTitle(title)}
                         value={title}
-                        placeholder='Enter title'
                         clearButtonMode='while-editing'
                     />
                     <TextInput
@@ -55,7 +55,6 @@ function AddScreen({ navigation }) {
                         multiline={true}
                         onChangeText={text => setText(text)}
                         value={text}
-                        placeholder='Enter description'
                         clearButtonMode='while-editing'
                     />
                     <TouchableOpacity
@@ -68,7 +67,7 @@ function AddScreen({ navigation }) {
                             justifyContent: 'center',
                             borderRadius: 5
                         }}
-                        onPress={() => addToDoFunc(dispatch,navigation,{title,text})}
+                        onPress={() => editToDoFunc(dispatch,navigation, todo._id, {title,text} )}
                         disabled={!title || !text}
                         >
                         <Ionicons name='ios-arrow-dropright-circle' size={40} color='#fff' />
@@ -79,10 +78,12 @@ function AddScreen({ navigation }) {
         </View>
     )
 }
-const addToDoFunc = (dispatch,navigation,body) =>{
-    dispatch(addToDo(body));
+
+const editToDoFunc = (dispatch,navigation,id,body) =>{
+    dispatch( editToDo(id,body));
     navigation.navigate('List');
 }
+
 const styles = StyleSheet.create({
     container: {
         flex: 1
@@ -124,4 +125,4 @@ const styles = StyleSheet.create({
         left: 50
     }
 })
-export default AddScreen
+export default EditScreen

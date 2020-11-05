@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { FETCH_TODOS,FETCH_TODOS_SUCCESS,FETCH_TODOS_FAIL, MARK_AS_FAVORITE_SUCCESS, MARK_AS_DONE_SUCCESS, ADD_TODO_SUCCESS,ADD_TODO_FAIL, SET_ERROR, ADD_TODO, DELETE_TODO, DELETE_TODO_SUCCESS, DELETE_TODO_FAIL } from '../utils/actionTypes';
+import { FETCH_TODOS,FETCH_TODOS_SUCCESS,FETCH_TODOS_FAIL, MARK_AS_FAVORITE_SUCCESS, MARK_AS_DONE_SUCCESS, ADD_TODO_SUCCESS,ADD_TODO_FAIL, SET_ERROR, ADD_TODO, DELETE_TODO, DELETE_TODO_SUCCESS, DELETE_TODO_FAIL, SET_RELOAD_TIME, EDIT_TODO, EDIT_TODO_SUCCESS, EDIT_TODO_FAIL } from '../utils/actionTypes';
 import { apiUrl } from '../utils/constants';
 
 //sync job
@@ -56,6 +56,25 @@ export const setError = () =>({
     type : SET_ERROR
 })
 
+export const setReloadTime = time =>({
+    type : SET_RELOAD_TIME,
+    payload : time
+})
+
+const editToDoAction = () =>({
+    type : EDIT_TODO
+})
+
+const editToDoSuccess = todo =>({
+    type : EDIT_TODO_SUCCESS,
+    payload : todo
+})
+
+const editToDoFail = error => ({
+    type : EDIT_TODO_FAIL,
+    payload : error
+})
+
 //async call to API with thunk
 export const getToDos = () =>{
     return async dispatch =>{
@@ -65,8 +84,8 @@ export const getToDos = () =>{
             if (res.data.status == 'fail'){
                 dispatch(fetchToDosFail(res.data.error));
             }
-            var todos = appendProperties(res.data.todos);
-            dispatch(fetchToDosSuccess( todos ));
+           // var todos = appendProperties(res.data.todos);
+            dispatch(fetchToDosSuccess( res.data.todos ));
         } catch (error) {
             dispatch(fetchToDosFail(error.message));
         }
@@ -106,17 +125,19 @@ export const deleteToDo = ID =>{
             const res = await axios.delete(`${apiUrl}todo/${ID}`);
             dispatch(deleteToDoSuccess(res.data.todo));
         } catch (error) {
-            dispatch(addToDoFail(error.message));
+            dispatch(deleteToDoFail(error.message));
         }
     }
 }
 
-
-// auxiliary function to append favorite,done to todos objects
-function appendProperties(dataArray){
-    return dataArray.map(el =>{
-        el.favorite = false;
-        el.done = false;
-        return el;
-    });
+export const editToDo = (ID,body) =>{
+    return async dispatch =>{
+        try {
+            dispatch( editToDoAction() );
+            const res = await axios.put(`${apiUrl}todo/${ID}`, body);
+            dispatch ( editToDoSuccess(res.data.todo) );
+        } catch (error) {
+            dispatch( editToDoFail(error.message) );
+        }
+    }
 }

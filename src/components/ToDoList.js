@@ -1,108 +1,18 @@
-import React from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Button } from 'react-native';
+import React, { useState,useEffect } from 'react';
+import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { useSelector,useDispatch } from 'react-redux';
 import Spinner from 'react-native-loading-spinner-overlay';
 import ToDo from './ToDo';
 import NotificationComponent from './NotificationComponent';
+import Favorite from './Favorite';
 import { Ionicons } from '@expo/vector-icons'
 
 import { Notification } from "react-native-in-app-message";
-import { setError } from '../redux/actions';
+import NumericInput from 'react-native-numeric-input'
+import { setError, setReloadTime } from '../redux/actions';
+import { getToDos } from './../redux/actions';
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 
-/*const mapStateToProps = (state) => {
-    return {
-        todos: state.todos,
-        status: state.status,
-        hasError : state.hasError,
-        error : state.error
-    }
-}*/
-
-var shouldShowMessage = (error,dispatch) =>{
-   if(error != null){
-       Notification.show();
-        // needs to dispacth and action
-        setTimeout(() => dispatch(setError()) ,5000);
-       // setTimeout(() => error = null,5000);
-   }
-}
-
-var setMessageType = (error,hasError) =>{
-    var notif,notifComponent;
-    if (error != null && hasError){
-        notifComponent = <NotificationComponent 
-            message={error}
-            type={'error'}
-        />
-        notif = <Notification customComponent={notifComponent} style={{paddingTop: 22}} duration={5000} />
-    }else{
-            notifComponent = <NotificationComponent 
-            message={error}
-            type={'success'}
-        />
-        //not an error msg
-        notif = <Notification customComponent={notifComponent} style={{paddingTop: 22}} duration={5000}/>
-    }
-
-    return notif;
-}
-
-export default ToDoList = ({ navigation }) => {
-    const todos = useSelector(state => state.todos);
-    const status = useSelector(state => state.status);
-    const hasError = useSelector(state => state.hasError);
-    const error = useSelector(state => state.error);
-
-    //console.log(message);
-    const dispatch = useDispatch();
-
-    function renderList() {
-        if (status == 'loading') {
-            return (
-                <Spinner
-                    visible={true}
-                    textContent={'Loading...'}
-                    textStyle={{ color: '#FFF' }}
-                />
-            )
-        } else {
-            return (
-                <ScrollView contentContainerStyle={contentContainer}>
-                    {
-                        todos.map((todo, i) => (
-                            <ToDo
-                                key={todo._id}
-                                navigation={navigation}
-                                todo={todo}
-                                index={i}
-                            />
-                        ))
-                    }
-                </ScrollView>
-            )
-        }
-    }
-
-    return (
-        <React.Fragment>
-             { setMessageType(error,hasError)}
-            {
-               shouldShowMessage(error,dispatch)
-            }
-            <View style={container} >
-                <Text style={title}>ToDo List</Text>
-                {renderList()}
-                <View style={styles.fabContainer}>
-                    <TouchableOpacity
-                        onPress={() => navigation.navigate('AddModal')}
-                        style={styles.fabButton}>
-                        <Ionicons name='ios-add' color='#fff' size={70} />
-                    </TouchableOpacity>
-                </View>
-            </View>
-        </React.Fragment>
-    )
-}
 
 const styles = StyleSheet.create({
     container: {
@@ -134,11 +44,178 @@ const styles = StyleSheet.create({
         textAlign: "center",
         fontWeight: 'bold',
         fontSize: 20
-    }
+    },
+    additionalToolbar:{
+         flexDirection: 'row',
+         justifyContent: 'space-between',
+         margin : 7,
+         marginTop : -20,
+    },
 })
 
-const { container, contentContainer, title, fabButton, fabContainer } = styles;
+const { container, contentContainer, title, fabButton, fabContainer ,additionalToolbar} = styles;
 
-//const ToDoList = connect(mapStateToProps)(ConnectedToDoList);
+var shouldShowMessage = (error,dispatch) =>{
+   if(error != null){
+       Notification.show();
+        // needs to dispacth and action
+        setTimeout(() => dispatch(setError()) ,3000);
+       // setTimeout(() => error = null,5000);
+   }
+}
 
-//export default ToDoList;
+var setMessageType = (error,hasError) =>{
+    var notif,notifComponent;
+    if (error != null && hasError){
+        notifComponent = <NotificationComponent 
+            message={error}
+            type={'error'}
+        />
+        notif = <Notification customComponent={notifComponent} style={{paddingTop: 22}} duration={3000} onPress={Notification.hide} />
+    }else{
+            notifComponent = <NotificationComponent 
+            message={error}
+            type={'success'}
+        />
+        //not an error msg
+        notif = <Notification customComponent={notifComponent} style={{paddingTop: 22}} duration={3000} onPress={Notification.hide}/>
+    }
+
+    return notif;
+}
+
+var setReloadMinTime = (time, dispatch , setShow) =>{
+    var num ;
+    if (time <= 0)
+        num = 1;
+    else if (time > 60)
+        num = 60;
+    else
+        num = time;
+
+    dispatch(setReloadTime(num));
+    setShow(false);
+}
+
+export default ToDoList = ({ navigation }) => {
+    const todos = useSelector(state => state.todos);
+    const status = useSelector(state => state.status);
+    const hasError = useSelector(state => state.hasError);
+    const error = useSelector(state => state.error);
+    const reloadTime = useSelector(state => state.reloadTime);
+
+    const dispatch = useDispatch();
+    const [showConfig,setShowConfig] = useState(false);
+    const [showFav,setShowFav] = useState(false);
+   
+    const [time,setTime] = useState( reloadTime );
+    
+    /*Interval to request data to server
+        reloadTime = 1 min 
+        if reloadTime changes, clear that interval and create a new one
+    */
+      useEffect(() => {
+        const interval = setInterval(() => {
+            dispatch(getToDos());
+        }, reloadTime * 60000);
+        return () => clearInterval(interval);
+      }, [reloadTime]);
+
+    function renderList() {
+        if (status == 'loading') {
+            return (
+                <Spinner
+                    visible={true}
+                    textContent={'Loading...'}
+                    textStyle={{ color: '#FFF' }}
+                />
+            )
+        } else {
+            return (
+                <ScrollView contentContainerStyle={contentContainer}>
+                    {
+                        todos.map((todo, i) => (
+                            <ToDo
+                                key={todo._id}
+                                navigation={navigation}
+                                todo={todo}
+                                index={i}
+                            />
+                        ))
+                    }
+                </ScrollView>
+            )
+        }
+    }
+
+    return (
+        <React.Fragment>
+            { setMessageType(error,hasError)}
+            {
+               shouldShowMessage(error,dispatch)
+            }
+            <View style={container} >
+               
+                <Text style={title}>ToDo List</Text>
+                <Text style={{fontSize: 10,color: 'grey',textAlign: 'center'}}>Reload every {reloadTime} min</Text>
+                {/** FavoriteDetail button + Config button */}
+                <View style={additionalToolbar}>
+                    <TouchableWithoutFeedback onPress={() => showFav == true ? setShowFav(false) : setShowFav(true)}>
+                        <Image style={{width: 30, height: 30}} source={{uri : "https://icon-icons.com/icons2/72/PNG/48/love_heart_14409.png"}}  />
+                    </TouchableWithoutFeedback>
+                    <TouchableWithoutFeedback onPress={() => showConfig == true ? setShowConfig(false) : setShowConfig(true)}>
+                        <Image style={{width: 30, height: 30}} source={{uri : "https://icon-icons.com/icons2/1141/PNG/48/1486395874-settings_80622.png"}}  />
+                    </TouchableWithoutFeedback>      
+                </View>
+                {/** config the reload time */}
+                {
+                    showConfig === true &&
+                    <View style={{justifyContent:'center', alignItems: 'center'}}>
+                        <Text style={{fontSize:14,padding:7}}>¿How many minutes to reload data?</Text>
+                        <NumericInput 
+                            value={time} 
+                            onChange={value => setTime(value)} 
+                            minValue={1}
+                            maxValue={60}
+                            totalWidth={200} 
+                            totalHeight={40} 
+                            iconSize={25}
+                            valueType='real'
+                            rounded 
+                            textColor='#B0228C' 
+                            iconStyle={{ color: 'white' }} 
+                            rightButtonBackgroundColor='#EA3788' 
+                            leftButtonBackgroundColor='#E56B70'/>
+                            <TouchableOpacity
+                        style={{
+                            marginTop: 10,
+                            backgroundColor: 'blue',
+                            width: 50,
+                            height: 50,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            borderRadius: 5
+                        }}
+                        onPress={() => {setReloadMinTime(time,dispatch,setShowConfig)}}
+                        > 
+                        <Ionicons name='ios-arrow-dropright-circle' size={40} color='#fff' />
+                    </TouchableOpacity>
+                    </View>
+                }
+                {/** fav component */}
+                {
+                    showFav === true && 
+                    <Favorite />
+                }
+                {renderList()}
+                <View style={styles.fabContainer}>
+                    <TouchableOpacity
+                        onPress={() => navigation.navigate('AddModal')}
+                        style={styles.fabButton}>
+                        <Ionicons name='ios-add' color='#fff' size={70} />
+                    </TouchableOpacity>
+                </View>
+            </View>
+        </React.Fragment>
+    )
+}

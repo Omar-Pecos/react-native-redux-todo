@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Text, View, Image, StyleSheet, TouchableOpacity } from 'react-native';
-import { TouchableNativeFeedback } from 'react-native-gesture-handler';
+import { Text, View, Image, StyleSheet,TouchableOpacity,TouchableNativeFeedback} from 'react-native';
+//import {  } from 'react-native-gesture-handler';
 import { useDispatch } from 'react-redux'
 
 import { markAs } from './../redux/actions';
@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
         width: 65,
         height: 65,
         margin: 7,
-        marginLeft: -10
+        marginLeft: -5
     },
     imageSmall: {
         width: 20,
@@ -50,13 +50,27 @@ const styles = StyleSheet.create({
 
 const { container, containerFav, title, titleDone, imageBig, imageSmall, flex } = styles;
 
+const randomHexColor = () => {
+    return "#000000".replace(/0/g, function() {
+      return (~~(Math.random() * 16)).toString(16);
+    });
+  };
 
 const ToDo = ({ todo, index , navigation }) => {
     const[ displayEditToolbar,changeDisplayToolbar] = useState(false);
+    const [rippleColor, setRippleColor] = useState(randomHexColor());
+    const [rippleOverflow, setRippleOverflow] = useState(false);
     const dispatch = useDispatch()
 
     return (
-        <TouchableNativeFeedback onLongPress={() => changeDisplayToolbar(displayEditToolbar == true ? false : true)}>
+        <TouchableNativeFeedback
+            onPress={() =>{
+                setRippleColor(randomHexColor());
+                setRippleOverflow(!rippleOverflow);
+            }} 
+            background={TouchableNativeFeedback.Ripple(rippleColor, rippleOverflow)}
+            onLongPress={() => changeDisplayToolbar(displayEditToolbar == true ? false : true)}
+         >
         <View style={todo.favorite == false ? container : containerFav}>
             <Text style={todo.done == true ? titleDone : title}>{todo.title}</Text>
             <View style={flex}>
@@ -105,7 +119,7 @@ const ToDo = ({ todo, index , navigation }) => {
                     <Text>&nbsp; &nbsp;</Text>
                     
                     {
-                        <TouchableOpacity onPress={() => ('')} >
+                        <TouchableOpacity onPress={() => navigation.navigate('EditModal',{todo})} >
                             <Image style={imageSmall} source={{ uri: "https://icon-icons.com/icons2/523/PNG/48/edit_icon-icons.com_52382.png" }} />
                         </TouchableOpacity>
                     }
