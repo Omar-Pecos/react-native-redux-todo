@@ -2,13 +2,13 @@
   "expo": {
     "name": "ToDox",
     "slug": "react-native-redux-todo",
-    "version": "1.0.1",
+    "version": "1.2.1",
     "orientation": "portrait",
     "icon": "./assets/todox_icon.png",
     "splash": {
       "image": "./assets/todox_splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#f1f0eb"
+      "resizeMode": "cover",
+      "backgroundColor": "#FEF9B0"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -20,11 +20,14 @@
       "supportsTablet": true
     },
     "android": {
+      "permissions": [],
       "adaptiveIcon": {
         "foregroundImage": "./assets/todox_icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "package": "com.omarpv.todox"
+      "package": "com.omarpv.todox",
+      "versionCode": 4,
+      "enableDangerousExperimentalLeanBuilds": true
     },
     "web": {
       "favicon": "./assets/favicon.png"

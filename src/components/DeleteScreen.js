@@ -4,6 +4,10 @@ import { useDispatch } from 'react-redux'
 import { Ionicons } from '@expo/vector-icons'
 import { deleteToDo } from '../redux/actions'
 
+import deleteImage from './../../assets/delete.png';
+const deleteImgUri = Image.resolveAssetSource(deleteImage).uri;
+
+
 const DeleteScreen = ({route,navigation}) =>{
     //get param
     const {todo} = route.params;
@@ -36,7 +40,7 @@ const DeleteScreen = ({route,navigation}) =>{
                         }}
                         onPress={() => deleteToDoFunc(dispatch,navigation,todo._id)}
                         >
-                       <Image style={{width:30,height:30}} source={{ uri: "https://icon-icons.com/icons2/1808/PNG/48/trash-can_115312.png" }} />
+                       <Image style={{width:30,height:30}} source={{ uri: deleteImgUri }} />
                     </TouchableOpacity>
                 </View>
 

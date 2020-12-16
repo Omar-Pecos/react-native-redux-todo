@@ -13,6 +13,13 @@ import { setError, setReloadTime } from '../redux/actions';
 import { getToDos } from './../redux/actions';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 
+import favIconImage from './../../assets/fav_icon.png';
+import configImage from './../../assets/settings.png';
+
+const favIconImgUri = Image.resolveAssetSource(favIconImage).uri;
+const configImgUri = Image.resolveAssetSource(configImage).uri;
+
+
 
 const styles = StyleSheet.create({
     container: {
@@ -161,10 +168,10 @@ export default ToDoList = ({ navigation }) => {
                 {/** FavoriteDetail button + Config button */}
                 <View style={additionalToolbar}>
                     <TouchableWithoutFeedback onPress={() => showFav == true ? setShowFav(false) : setShowFav(true)}>
-                        <Image style={{width: 30, height: 30}} source={{uri : "https://icon-icons.com/icons2/72/PNG/48/love_heart_14409.png"}}  />
+                        <Image style={{width: 30, height: 30}} source={{ uri : favIconImgUri }}  />
                     </TouchableWithoutFeedback>
                     <TouchableWithoutFeedback onPress={() => showConfig == true ? setShowConfig(false) : setShowConfig(true)}>
-                        <Image style={{width: 30, height: 30}} source={{uri : "https://icon-icons.com/icons2/1141/PNG/48/1486395874-settings_80622.png"}}  />
+                        <Image style={{width: 30, height: 30}} source={{ uri : configImgUri }}  />
                     </TouchableWithoutFeedback>      
                 </View>
                 {/** config the reload time */}

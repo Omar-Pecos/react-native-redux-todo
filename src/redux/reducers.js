@@ -1,4 +1,4 @@
-const {FETCH_TODOS, FETCH_TODOS_SUCCESS, FETCH_TODOS_FAIL, MARK_AS_FAVORITE_SUCCESS, MARK_AS_DONE_SUCCESS, ADD_TODO_SUCCESS, ADD_TODO_FAIL, SET_ERROR,ADD_TODO, DELETE_TODO, DELETE_TODO_SUCCESS, DELETE_TODO_FAIL, SET_RELOAD_TIME, EDIT_TODO, EDIT_TODO_SUCCESS, EDIT_TODO_FAIL } = require("../utils/actionTypes")
+const {FETCH_TODOS, FETCH_TODOS_SUCCESS, FETCH_TODOS_FAIL, MARK_AS_FAVORITE_SUCCESS, MARK_AS_DONE_SUCCESS, ADD_TODO_SUCCESS, ADD_TODO_FAIL, SET_ERROR,ADD_TODO, DELETE_TODO, DELETE_TODO_SUCCESS, DELETE_TODO_FAIL, SET_RELOAD_TIME, EDIT_TODO, EDIT_TODO_SUCCESS, EDIT_TODO_FAIL, MARK_AS_NO_VISIBLE_SUCCESS } = require("../utils/actionTypes")
 
 const initialState = {
     todos : [],
@@ -7,11 +7,12 @@ const initialState = {
     error : null,
     favorite : null,
     doneTodos : [],
-    reloadTime : 1
+    reloadTime : 1,
+    noVisibleTodos : []
 }
 
 // auxiliary function to append favorite,done to todos objects
-function appendProperties(dataArray,fav,doneTodos){
+function appendProperties(dataArray,fav,doneTodos,noVisibleTodos){
     return dataArray.map(el =>{
         el.favorite = false;
         if (fav != null && el._id == fav._id)
@@ -19,6 +20,10 @@ function appendProperties(dataArray,fav,doneTodos){
         el.done = false;
             if (doneTodos.includes(el._id))
                 el.done = true;
+        el.noVisible = false;
+            if (noVisibleTodos.includes(el._id))
+                el.noVisible = true;
+
         return el;
     });
 }
@@ -31,7 +36,7 @@ const todos = (state = initialState,action) =>{
                 status : 'loading'
             }
         case FETCH_TODOS_SUCCESS:
-            var newTodos = appendProperties(action.payload,state.favorite,state.doneTodos);
+            var newTodos = appendProperties(action.payload,state.favorite,state.doneTodos,state.noVisibleTodos);
 
             return {
                 ...state,
@@ -83,7 +88,8 @@ const todos = (state = initialState,action) =>{
             
             return {
                 ...state,
-                todos : newTodos
+                todos : newTodos,
+                doneTodos : finishedTodos
             }
         case ADD_TODO:
             return{
@@ -155,7 +161,7 @@ const todos = (state = initialState,action) =>{
                 }
             case EDIT_TODO_SUCCESS:
                 var todo = action.payload;
-                var newTodo = appendProperties([todo], state.favorite, state.doneTodos)[0];
+                var newTodo = appendProperties([todo], state.favorite, state.doneTodos, state.noVisibleTodos)[0];
 
                 var newArray = state.todos.map(el =>{
                     if (el._id == todo._id)
@@ -175,6 +181,26 @@ const todos = (state = initialState,action) =>{
                     status : 'error',
                     hasError : true,
                     error : action.payload
+                }
+            case MARK_AS_NO_VISIBLE_SUCCESS:
+                var noVisibleTodos = state.noVisibleTodos;
+                var [type,value,index] = action.payload;
+                
+                var newTodos =  state.todos.map( (todo,i) =>{
+                    if( index === i ){
+                        todo[type] = value;
+                        if (value === true)
+                            noVisibleTodos.push(todo._id);
+                        else
+                            noVisibleTodos = noVisibleTodos.filter(id => id != todo._id);
+                    }
+                    return todo;
+                });
+                
+                return {
+                    ...state,
+                    todos : newTodos,
+                    noVisibleTodos : noVisibleTodos
                 }
         default :
             return state;

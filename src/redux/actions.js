@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { FETCH_TODOS,FETCH_TODOS_SUCCESS,FETCH_TODOS_FAIL, MARK_AS_FAVORITE_SUCCESS, MARK_AS_DONE_SUCCESS, ADD_TODO_SUCCESS,ADD_TODO_FAIL, SET_ERROR, ADD_TODO, DELETE_TODO, DELETE_TODO_SUCCESS, DELETE_TODO_FAIL, SET_RELOAD_TIME, EDIT_TODO, EDIT_TODO_SUCCESS, EDIT_TODO_FAIL } from '../utils/actionTypes';
+import { FETCH_TODOS,FETCH_TODOS_SUCCESS,FETCH_TODOS_FAIL, MARK_AS_FAVORITE_SUCCESS, MARK_AS_DONE_SUCCESS, ADD_TODO_SUCCESS,ADD_TODO_FAIL, SET_ERROR, ADD_TODO, DELETE_TODO, DELETE_TODO_SUCCESS, DELETE_TODO_FAIL, SET_RELOAD_TIME, EDIT_TODO, EDIT_TODO_SUCCESS, EDIT_TODO_FAIL, MARK_AS_NO_VISIBLE_SUCCESS } from '../utils/actionTypes';
 import { apiUrl } from '../utils/constants';
 
 //sync job
@@ -22,6 +22,11 @@ const markAsFavSuccess = data =>({
 
 const markAsDoneSuccess = data =>({
     type : MARK_AS_DONE_SUCCESS,
+    payload : data
+})
+
+const markAsNoVisibleSuccess = data =>({
+    type : MARK_AS_NO_VISIBLE_SUCCESS,
     payload : data
 })
 
@@ -97,9 +102,12 @@ export const markAs = (type,value,index) =>{
         const data = [type,value,index];
         if (type == 'favorite')
             dispatch( markAsFavSuccess(data));
-        else{
+        else if (type == 'noVisible'){
+            dispatch( markAsNoVisibleSuccess(data));
+        }else{
             dispatch( markAsDoneSuccess(data));
         }
+        
            
     }
     
